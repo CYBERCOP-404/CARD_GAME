@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Calculator</title>
+    <link rel="shortcut icon" href="image.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brustup@1.0.0/dist/brustup.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            animation: bodyColorChange 60s infinite;
+            font-size: 14px;
+        }
+
+        @keyframes bodyColorChange {
+            0% { background-color: #f4f4f4; }
+            16% { background-color: #f5e6ea; }
+            32% { background-color: #e8eaf6; }
+            48% { background-color: #e0f7fa; }
+            64% { background-color: #e8f5e9; }
+            80% { background-color: #fff3e0; }
+            100% { background-color: #f4f4f4; }
+        }
+
+        .container {
+            text-align: center;
+            padding: 15px;
+            max-width: 90%;
+            width: 350px;
+            box-sizing: border-box;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: box-shadow 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="number"]:hover {
+            box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.5);
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            animation: buttonColorChange 60s infinite;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        @keyframes buttonColorChange {
+            0% { background-color: #28a745; }
+            16% { background-color: #ff7043; }
+            32% { background-color: #ffeb3b; }
+            48% { background-color: #8bc34a; }
+            64% { background-color: #03a9f4; }
+            80% { background-color: #673ab7; }
+            100% { background-color: #28a745; }
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result {
+            font-size: 16px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .positive {
+            color: green;
+        }
+
+        .negative {
+            color: red;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: rgb(197, 179, 179);
+            box-shadow: 0px -1px 5px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+                max-width: 90%;
+                width: 90%;
+            }
+
+            input[type="number"] {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .result {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Card Calculator</h2>
+        <label for="box1">ENTER YOUR NUMBER :</label>
+        <input type="number" id="box1" placeholder="Enter number" min="0">
+        
+        <label for="box2">ENTER YOUR NUMBER :</label>
+        <input type="number" id="box2" placeholder="Enter number" min="0">
+
+        <button onclick="updateBoxes()">Submit</button>
+        
+        <div class="result" id="resultBox">Team-1  / Team-2 </div>
+        
+        <div class="result" id="winnerMessage"></div>
+    </div>
+
+    <div class="footer">
+        &copy; 2024 MD. NAHIDUL ISLAM
+    </div>
+
+    <audio id="congratulationsSound" src="congratulations.mp3"></audio>
+
+    <script>
+        let box1 = 0;
+        let box2 = 0;
+
+        function updateBoxes() {
+            const userBox1 = parseInt(document.getElementById('box1').value);
+            const userBox2 = parseInt(document.getElementById('box2').value);
+
+            if (isNaN(userBox1) || isNaN(userBox2)) {
+                alert('Please enter valid numbers in both fields.');
+                return;
+            }
+
+            box1 += userBox1;
+            box2 += userBox2;
+
+            const resultBox = document.getElementById('resultBox');
+            let resultText = `${box1}   /   ${box2}`;
+
+            // Reset the color class
+            resultBox.classList.remove('positive', 'negative');
+
+            if (box1 < 0) {
+                resultBox.classList.add('negative');
+            } else if (box1 >= 0) {
+                resultBox.classList.add('positive');
+            }
+
+            if (box2 < 0) {
+                resultBox.classList.add('negative');
+            } else if (box2 >= 0) {
+                resultBox.classList.add('positive');
+            }
+
+            resultBox.textContent = resultText;
+
+            document.getElementById('box1').value = ''; // Clear input
+            document.getElementById('box2').value = ''; // Clear input
+
+            if (box1 >= 50) {
+                const winnerMessage = document.getElementById('winnerMessage');
+                winnerMessage.textContent = 'CONGRATULATIONS...  TEAM 1 YOU ARE WIN ! ';
+                winnerMessage.classList.add('positive');
+                addFlowers(winnerMessage);
+                playSound();
+                disableInputs();
+            } else if (box2 >= 50) {
+                const winnerMessage = document.getElementById('winnerMessage');
+                winnerMessage.textContent = 'CONGRATULATIONS... TEAM 2 YOU ARE WIN ! ';
+                winnerMessage.classList.add('positive');
+                addFlowers(winnerMessage);
+                playSound();
+                disableInputs();
+            }
+        }
+
+        function disableInputs() {
+            document.getElementById('box1').disabled = true;
+            document.getElementById('box2').disabled = true;
+            document.querySelector('button').disabled = true;
+        }
+
+        function addFlowers(element) {
+            const flower1 = document.createElement('div');
+            flower1.classList.add('flower');
+            const flower2 = document.createElement('div');
+            flower2.classList.add('flower');
+            const flower3 = document.createElement('div');
+            flower3.classList.add('flower');
+            const flower4 = document.createElement('div');
+            flower4.classList.add('flower');
+            
+            element.appendChild(flower1);
+            element.appendChild(flower2);
+            element.appendChild(flower3);
+            element.appendChild(flower4);
+        }
+
+        function playSound() {
+            const sound = document.getElementById('congratulationsSound');
+            sound.play();
+        }
+    </script>
+</body>
+</html>
